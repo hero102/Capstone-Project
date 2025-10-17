@@ -1,0 +1,34 @@
+<div class="otp-box" [@fadeSlide]>
+  <h3>📱 Mobile Verification</h3>
+  <p class="otp-subtitle">
+    Enter the 6-digit OTP sent to your registered mobile number
+    <strong>{{ maskedMobile }}</strong>
+  </p>
+
+  <input
+    type="text"
+    maxlength="6"
+    [(ngModel)]="otp"
+    placeholder="Enter OTP"
+    class="otp-input"
+    [disabled]="loading"
+  />
+
+  <div class="otp-buttons">
+    <button class="btn btn-primary" (click)="verifyOtp()" [disabled]="loading">
+      {{ loading ? 'Verifying...' : 'Verify OTP' }}
+    </button>
+    <button class="btn btn-secondary" (click)="resendOtp()" [disabled]="loading">
+      Resend OTP
+    </button>
+  </div>
+
+  <p class="otp-note">
+    Didn’t receive the OTP? Please wait a few seconds before resending.
+  </p>
+
+  <p class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="success-msg" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <div class="loader" *ngIf="loading"></div>
+</div>

@@ -1,0 +1,75 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">🏦 Super Admin Dashboard</h1>
+
+    <!-- 🔹 Logout Button -->
+    <button class="logout-btn" (click)="logout()">🚪 Logout</button>
+  </div>
+  <!-- 🔹 Add Bank Button -->
+  <div class="actions" *ngIf="!showForm">
+    <button class="add-btn" (click)="onAddBank()">➕ Add Bank</button>
+  </div>
+
+  <!-- 🔹 Bank Form -->
+  <div *ngIf="showForm" class="form-container">
+    <app-add-edit-bank
+      [editData]="editData"
+      (bankAddedOrUpdated)="onBankAddedOrUpdated()"
+      (closeForm)="closeForm()"
+    ></app-add-edit-bank>
+  </div>
+
+  <!-- 🔹 Bank List -->
+  <div *ngIf="!showForm" class="bank-list-container">
+    <div *ngIf="loading" class="loading">⏳ Loading banks...</div>
+
+    <table *ngIf="!loading && banks.length > 0" class="bank-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Bank Name</th>
+          <th>Branch</th>
+          <th>Identifier</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let bank of banks">
+          <td>{{ bank.bankId }}</td>
+          <td>{{ bank.bankName }}</td>
+          <td>{{ bank.branch }}</td>
+          <td>{{ bank.bankIdentifier }}</td>
+          <td>{{ bank.officialEmail }}</td>
+          <td>{{ bank.officialPhone }}</td>
+          <td>
+            <span [class.active]="bank.active" [class.inactive]="!bank.active">
+              {{ bank.active ? 'Active' : 'Inactive' }}
+            </span>
+            
+          </td>
+          <td>
+            <button class="edit-btn" (click)="onEditBank(bank)">✏️ Edit</button>
+            <button class="delete-btn" (click)="onDeleteBank(bank.bankId)">🗑 Delete</button>
+            <button
+              class="status-btn"
+              [class.activate]="!bank.active"
+              [class.deactivate]="bank.active"
+              (click)="toggleBankStatus(bank)"
+            >
+              {{ bank.active ? 'Deactivate' : 'Activate' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loading && banks.length === 0" class="empty-state">
+      <p>🚫 No banks registered yet.</p>
+      <button class="add-btn" (click)="onAddBank()">Add First Bank</button>
+    </div>
+  </div>
+</div>

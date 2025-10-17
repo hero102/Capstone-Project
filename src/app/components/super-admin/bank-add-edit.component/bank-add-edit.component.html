@@ -1,0 +1,68 @@
+<div class="bank-form-wrapper">
+  <div class="bank-form-card">
+    <h2 class="title">
+      {{ editData ? '✏️ Edit Bank Details' : '🏦 Register New Bank' }}
+    </h2>
+
+    <form [formGroup]="bankForm" (ngSubmit)="submit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Bank Name</label>
+          <input type="text" formControlName="bankName" [readonly]="!!editData" />
+        </div>
+        <div class="form-group">
+          <label>Branch</label>
+          <input type="text" formControlName="branch" [readonly]="!!editData" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Bank Identifier</label>
+          <input type="text" formControlName="bankIdentifier" [readonly]="!!editData" />
+        </div>
+        <div class="form-group">
+          <label>Registration Number</label>
+          <input type="text" formControlName="registrationNumber" [readonly]="!!editData" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Head Office Address</label>
+          <input type="text" formControlName="headOfficeAddress" placeholder="Enter head office address" />
+        </div>
+        <div class="form-group">
+          <label>Official Email</label>
+          <input type="email" formControlName="officialEmail" placeholder="Enter official email" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Official Phone</label>
+          <input type="text" formControlName="officialPhone" maxlength="10" placeholder="10-digit phone" />
+        </div>
+        <div class="form-group full">
+          <label>Upload Document (PDF/Image, max 5 MB)</label>
+          <input type="file" accept=".pdf, image/*" (change)="onFileChange($event)" [disabled]="!!editData" />
+        </div>
+
+      </div>
+
+      <!-- Captcha only for registration -->
+      <div class="captcha-container" *ngIf="!editData">
+        <re-captcha (resolved)="onCaptchaResolved($event)" siteKey="6LcOeuErAAAAAOG2ghBKFw-UetKNdFFvbPMeFcCz">
+        </re-captcha>
+      </div>
+
+      <div class="btn-container">
+        <button type="submit" [disabled]="isSubmitting">
+          <mat-spinner *ngIf="isSubmitting" diameter="18"></mat-spinner>
+          <span *ngIf="!isSubmitting">{{ editData ? 'Update Bank' : 'Submit Bank' }}</span>
+        </button>
+        <button type="button" class="cancel-btn" (click)="closeForm.emit()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

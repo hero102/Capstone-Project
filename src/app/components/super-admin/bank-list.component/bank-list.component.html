@@ -1,0 +1,52 @@
+<div class="bank-container">
+  <div class="header">
+    <h2>🏦 Bank Management</h2>
+    <button class="btn btn-primary" (click)="onAddBank()">➕ Add New Bank</button>
+  </div>
+
+  <div *ngIf="loading" class="status-msg info">Loading banks...</div>
+  <div *ngIf="!loading && banks.length === 0" class="status-msg warning">
+    No banks found.
+  </div>
+
+  <table *ngIf="!loading && banks.length > 0" class="bank-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Bank Name</th>
+        <th>Branch</th>
+        <th>Identifier</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let bank of banks">
+        <td>{{ bank.bankId }}</td>
+        <td>{{ bank.bankName }}</td>
+        <td>{{ bank.branch }}</td>
+        <td>{{ bank.bankIdentifier }}</td>
+        <td>{{ bank.officialEmail }}</td>
+        <td>{{ bank.officialPhone }}</td>
+        <td>
+          <span class="badge" [ngClass]="bank.active ? 'bg-success' : 'bg-danger'">
+            {{ bank.active ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-info" (click)="onEditBank(bank.bankId)">✏️ Edit</button>
+          <button
+            class="btn btn-sm"
+            [ngClass]="bank.active ? 'btn-warning' : 'btn-success'"
+            (click)="toggleStatus(bank)">
+            {{ bank.active ? 'Deactivate' : 'Activate' }}
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="onDeleteBank(bank.bankId)">🗑 Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ 

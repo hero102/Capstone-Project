@@ -1,0 +1,139 @@
+.bank-container {
+  background: #fff;
+  padding: 2rem;
+  margin: 2rem auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  max-width: 1100px;
+  font-family: "Roboto", sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+
+  h2 {
+    color: #333;
+    font-weight: 700;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+  }
+}
+
+.status-msg {
+  text-align: center;
+  padding: 0.7rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  font-weight: 500;
+
+  &.info {
+    background: #e9f5ff;
+    color: #0056b3;
+  }
+
+  &.warning {
+    background: #fff3cd;
+    color: #856404;
+  }
+}
+
+.bank-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+
+  th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  th {
+    background: #007bff;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  tr:hover {
+    background: #f8f9fb;
+  }
+
+  .badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.8rem;
+
+    &.bg-success {
+      background-color: #28a745;
+    }
+
+    &.bg-danger {
+      background-color: #dc3545;
+    }
+  }
+}
+
+.btn {
+  border: none;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin-right: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &.btn-info {
+    background-color: #17a2b8;
+    color: #fff;
+
+    &:hover {
+      background-color: #138496;
+    }
+  }
+
+  &.btn-warning {
+    background-color: #ffc107;
+    color: #000;
+
+    &:hover {
+      background-color: #e0a800;
+    }
+  }
+
+  &.btn-success {
+    background-color: #28a745;
+    color: #fff;
+
+    &:hover {
+      background-color: #218838;
+    }
+  }
+
+  &.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+}

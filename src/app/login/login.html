@@ -1,0 +1,90 @@
+<div class="login-wrapper">
+  <div class="login-container">
+    <div class="login-card">
+
+      <!-- HEADER -->
+      <div class="login-header">
+        <div class="logo-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <h2>Employee Portal</h2>
+        <p *ngIf="step === 'LOGIN'">Sign in to access your dashboard</p>
+        <p *ngIf="step === 'OTP'">Enter the OTP sent to your registered mobile/email</p>
+      </div>
+
+      <!-- BODY -->
+      <div class="login-body">
+
+        <!-- LOGIN FORM -->
+        <ng-container *ngIf="step === 'LOGIN'">
+          <div class="form-group">
+            <label>Email / Username</label>
+            <input class="form-control" [(ngModel)]="form.usernameOrEmail" placeholder="Enter your email or username" />
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" [(ngModel)]="form.password" placeholder="Enter your password" />
+          </div>
+
+          <!-- CAPTCHA + ERROR -->
+          <div class="form-group captcha-wrapper">
+            <re-captcha #captchaRef (resolved)="onCaptchaResolved($event)" siteKey="6LcOeuErAAAAAOG2ghBKFw-UetKNdFFvbPMeFcCz"></re-captcha>
+            <div class="error-message" *ngIf="error">{{ error }}</div>
+          </div>
+
+          <button class="btn-login" (click)="onSubmit()" [disabled]="loading">
+            <span *ngIf="!loading">Sign In</span>
+            <span *ngIf="loading">Logging in...</span>
+          </button>
+        </ng-container>
+
+        <!-- OTP VERIFICATION -->
+        <ng-container *ngIf="step === 'OTP'">
+          <app-otp-verification [usernameOrEmail]="form.usernameOrEmail"></app-otp-verification>
+          <div class="login-footer">
+            <button class="btn-login" (click)="resendOtp()" [disabled]="loading">Resend OTP</button>
+          </div>
+        </ng-container>
+
+        <!-- FORGOT PASSWORD -->
+        <div class="login-footer" *ngIf="step === 'LOGIN'">
+          <a href="#" (click)="showForgotPassword = !showForgotPassword">Forgot Password?</a>
+        </div>
+
+        <div *ngIf="showForgotPassword" class="forgot-password">
+          <div class="form-group">
+            <input class="form-control" [(ngModel)]="reset.identifier" placeholder="Email or Username" />
+          </div>
+          <button class="btn-login" (click)="requestResetOtp()" [disabled]="reset.loading">
+            <span *ngIf="!reset.loading">Request OTP</span>
+            <span *ngIf="reset.loading">Sending...</span>
+          </button>
+
+          <div *ngIf="reset.step === 'OTP'">
+            <app-otp-verification [usernameOrEmail]="reset.identifier"></app-otp-verification>
+            <div class="form-group">
+              <input class="form-control" [(ngModel)]="reset.newPassword" placeholder="New Password" type="password" />
+            </div>
+            <button class="btn-login" (click)="verifyAndResetPassword()" [disabled]="reset.loading">
+              <span *ngIf="!reset.loading">Reset Password</span>
+              <span *ngIf="reset.loading">Processing...</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DECORATION -->
+    <div class="login-decoration">
+      <div class="deco-circle deco-1"></div>
+      <div class="deco-circle deco-2"></div>
+      <div class="deco-circle deco-3"></div>
+    </div>
+  </div>
+</div>

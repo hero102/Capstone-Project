@@ -1,0 +1,1705 @@
+<!-- ,<!---<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bank Admin Dashboard</title>
+</head>
+<body>
+
+<div *ngIf="bankAdmin" class="container">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>🏦 Bank Admin Dashboard</h1>
+      <p>{{bankAdmin.bankName}}</p>
+    </div>
+    <div class="header-right">
+      <span>Welcome, {{bankAdmin.name}}</span>
+      <button (click)="logout()" class="btn-logout">Logout</button>
+    </div>
+  </div>
+
+  
+  <div *ngIf="message" [class]="'alert alert-' + messageType">
+    {{message}}
+  </div>
+
+ 
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'dashboard'" 
+      (click)="setActiveTab('dashboard')">
+      📊 Dashboard
+    </button>
+    <button 
+      [class.active]="activeTab === 'organizations'" 
+      (click)="setActiveTab('organizations')">
+      🏢 Organizations
+    </button>
+    <button 
+      [class.active]="activeTab === 'employees'" 
+      (click)="setActiveTab('employees')">
+      👥 Employees
+    </button>
+    <button 
+      [class.active]="activeTab === 'disbursements'" 
+      (click)="setActiveTab('disbursements')">
+      💰 Disbursements
+    </button>
+  </div>
+
+  
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  
+  <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+    <h2>Dashboard Overview</h2>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>{{pendingOrganizations.length}}</h3>
+        <p>Pending Organizations</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{allOrganizations.length}}</h3>
+        <p>Total Organizations</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{pendingEmployees.length}}</h3>
+        <p>Pending Employees</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{pendingDisbursements.length}}</h3>
+        <p>Pending Disbursements</p>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <button (click)="setActiveTab('organizations'); showOrgForm = true" class="btn-primary">
+        ➕ Add Organization
+      </button>
+      <button (click)="setActiveTab('employees')" class="btn-secondary">
+        👁️ Review Employees
+      </button>
+      <button (click)="setActiveTab('disbursements')" class="btn-secondary">
+        💰 Approve Disbursements
+      </button>
+    </div>
+  </div>
+
+  
+  <div *ngIf="activeTab === 'organizations'" class="tab-content">
+    <div class="section-header">
+      <h2>Organization Management</h2>
+      <button *ngIf="!showOrgForm" (click)="showOrgForm = true" class="btn-primary">
+        ➕ Add Organization
+      </button>
+      <button *ngIf="showOrgForm" (click)="resetOrgForm()" class="btn-secondary">
+        ❌ Cancel
+      </button>
+    </div>
+
+    <div *ngIf="showOrgForm" class="form-card">
+      <h3>Register New Organization</h3>
+      <form>
+        <div class="form-group">
+          <label>Organization Name *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="organizationForm.name" 
+            name="name"
+            placeholder="Enter organization name"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Official Email *</label>
+          <input 
+            type="email" 
+            [(ngModel)]="organizationForm.officialEmail" 
+            name="email"
+            placeholder="org@example.com"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Number *</label>
+          <input 
+            type="tel" 
+            [(ngModel)]="organizationForm.contactNumber" 
+            name="phone"
+            placeholder="+91 XXXXXXXXXX"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Address *</label>
+          <textarea 
+            [(ngModel)]="organizationForm.address" 
+            name="address"
+            placeholder="Enter complete address"
+            rows="3"
+            required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Registration Number *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="organizationForm.registrationNumber" 
+            name="regNumber"
+            placeholder="Enter registration number"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Registration Document *</label>
+          <input 
+            type="file" 
+            (change)="onFileSelect($event)"
+            accept=".pdf,.jpg,.jpeg,.png"
+            required>
+          <small>Upload registration certificate (PDF, JPG, PNG)</small>
+        </div>
+
+        <button 
+          type="button" 
+          (click)="addOrganization()" 
+          class="btn-primary"
+          [disabled]="loading">
+          {{loading ? 'Submitting...' : '✅ Register Organization'}}
+        </button>
+      </form>
+    </div>
+
+ 
+    <div class="section">
+      <h3>⏳ Pending Approvals ({{pendingOrganizations.length}})</h3>
+      <div *ngIf="pendingOrganizations.length === 0" class="empty-state">
+        No pending organizations
+      </div>
+      <div *ngFor="let org of pendingOrganizations" class="card">
+        <div class="card-header">
+          <h4>{{org.name}}</h4>
+          <span class="badge badge-warning">{{org.status}}</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Email:</strong> {{org.officialEmail}}</p>
+          <p><strong>Phone:</strong> {{org.contactNumber}}</p>
+          <p><strong>Registration No:</strong> {{org.registrationNumber}}</p>
+          <p><strong>Address:</strong> {{org.address}}</p>
+          <p *ngIf="org.documentUrl">
+            <strong>Document:</strong> 
+            <a [href]="org.documentUrl" target="_blank">View Document</a>
+          </p>
+        </div>
+        <div class="card-actions">
+          <button (click)="approveOrganization(org.organizationId)" class="btn-success">
+            ✅ Approve
+          </button>
+          <button (click)="rejectOrganization(org.organizationId)" class="btn-danger">
+            ❌ Reject
+          </button>
+        </div>
+      </div>
+    </div>
+
+ 
+    <div class="section">
+      <h3>📋 All Organizations ({{allOrganizations.length}})</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Registration No</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let org of allOrganizations">
+              <td>{{org.name}}</td>
+              <td>{{org.officialEmail}}</td>
+              <td>{{org.contactNumber}}</td>
+              <td>{{org.registrationNumber}}</td>
+              <td>
+                <span [class]="'badge badge-' + (org.status === 'APPROVED' ? 'success' : org.status === 'REJECTED' ? 'danger' : 'warning')">
+                  {{org.status}}
+                </span>
+              </td>
+              <td>{{org.createdAt | date:'short'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+  <div *ngIf="activeTab === 'employees'" class="tab-content">
+    <h2>Employee Approvals</h2>
+    
+    <div *ngIf="pendingEmployees.length === 0" class="empty-state">
+      No pending employee approvals
+    </div>
+
+    <div *ngFor="let emp of pendingEmployees" class="card">
+      <div class="card-header">
+        <h4>{{emp.name}}</h4>
+        <span class="badge badge-warning">{{emp.status}}</span>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div>
+            <p><strong>Email:</strong> {{emp.email}}</p>
+            <p><strong>Phone:</strong> {{emp.phoneNumber}}</p>
+          </div>
+          <div>
+            <p><strong>Designation:</strong> {{emp.designation}}</p>
+            <p><strong>Department:</strong> {{emp.department}}</p>
+          </div>
+          <div>
+            <p><strong>Organization:</strong> {{emp.organizationName}}</p>
+            <p *ngIf="emp.documentUrl">
+              <strong>Document:</strong> 
+              <a [href]="emp.documentUrl" target="_blank">View</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button (click)="reviewEmployee(emp.employeeId, true)" class="btn-success">
+          ✅ Approve
+        </button>
+        <button (click)="reviewEmployee(emp.employeeId, false)" class="btn-danger">
+          ❌ Reject
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div *ngIf="activeTab === 'disbursements'" class="tab-content">
+    <h2>Salary Disbursement Requests</h2>
+    
+    <div *ngIf="pendingDisbursements.length === 0" class="empty-state">
+      No pending disbursement requests
+    </div>
+
+    <div *ngFor="let req of pendingDisbursements" class="card">
+      <div class="card-header">
+        <h4>{{req.organizationName}}</h4>
+        <span class="badge badge-warning">{{req.status}}</span>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div>
+            <p><strong>Month:</strong> {{req.month}}</p>
+            <p><strong>Requested:</strong> {{req.requestedAt | date:'medium'}}</p>
+          </div>
+          <div>
+            <p><strong>Total Amount:</strong> ₹{{req.totalAmount | number:'1.2-2'}}</p>
+            <p><strong>Request ID:</strong> #{{req.requestId}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button (click)="approveDisbursement(req.requestId)" class="btn-success">
+          ✅ Approve & Disburse
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left h1 {
+  color: #2d3748;
+  font-size: 28px;
+  margin-bottom: 5px;
+}
+
+.header-left p {
+  color: #718096;
+  font-size: 14px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right span {
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.btn-logout {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-logout:hover {
+  background: #c53030;
+  transform: translateY(-2px);
+}
+
+.alert {
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.alert-success {
+  background: #c6f6d5;
+  color: #22543d;
+  border-left: 4px solid #38a169;
+}
+
+.alert-error {
+  background: #fed7d7;
+  color: #742a2a;
+  border-left: 4px solid #e53e3e;
+}
+
+.alert-info {
+  background: #bee3f8;
+  color: #2c5282;
+  border-left: 4px solid #3182ce;
+}
+
+.tabs {
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #4a5568;
+  transition: all 0.3s;
+}
+
+.tabs button:hover {
+  background: #edf2f7;
+}
+
+.tabs button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.tab-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-height: 500px;
+}
+
+.tab-content h2 {
+  color: #2d3748;
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.stat-card p {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.quick-actions {
+  margin-top: 30px;
+}
+
+.quick-actions h3 {
+  color: #2d3748;
+  margin-bottom: 15px;
+}
+
+.quick-actions button {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+.section h3 {
+  color: #2d3748;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.form-card {
+  background: #f7fafc;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 2px solid #e2e8f0;
+}
+
+.form-card h3 {
+  color: #2d3748;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #4a5568;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-group small {
+  color: #718096;
+  font-size: 12px;
+  display: block;
+  margin-top: 5px;
+}
+
+.card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background: #f7fafc;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.card-header h4 {
+  color: #2d3748;
+  font-size: 18px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-body p {
+  color: #4a5568;
+  margin-bottom: 10px;
+}
+
+.card-body strong {
+  color: #2d3748;
+}
+
+.card-body a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.card-body a:hover {
+  text-decoration: underline;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.card-actions {
+  padding: 15px 20px;
+  background: #f7fafc;
+  display: flex;
+  gap: 10px;
+  border-top: 2px solid #e2e8f0;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.badge-warning {
+  background: #feebc8;
+  color: #744210;
+}
+
+.badge-danger {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #718096;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: #4a5568;
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: #38a169;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-success:hover {
+  background: #2f855a;
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-danger:hover {
+  background: #c53030;
+  transform: translateY(-2px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #718096;
+  font-size: 16px;
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e0;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+thead {
+  background: #f7fafc;
+}
+
+thead th {
+  padding: 15px;
+  text-align: left;
+  color: #2d3748;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+tbody td {
+  padding: 15px;
+  color: #4a5568;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+tbody tr:hover {
+  background: #f7fafc;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-overlay p {
+  color: white;
+  font-size: 18px;
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-actions {
+    flex-direction: column;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .table-container {
+    font-size: 14px;
+  }
+}
+</style>
+
+</body>
+</html>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- hello -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bank Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px 30px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .btn-logout {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      animation: slideDown 0.3s ease;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border-left: 4px solid #17a2b8;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      background: white;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+
+    .tabs button {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    .tabs button:hover {
+      background: #f8f9fa;
+      color: #495057;
+    }
+
+    .tabs button.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-overlay p {
+      color: white;
+      margin-top: 15px;
+      font-size: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid #667eea;
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .stat-card h3 {
+      font-size: 36px;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+
+    .stat-card p {
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .stat-card-concern {
+      border-left-color: #e74c3c;
+    }
+
+    .stat-card-concern h3 {
+      color: #e74c3c;
+    }
+
+    .stat-card-vendor {
+      border-left-color: #f39c12;
+    }
+
+    .stat-card-vendor h3 {
+      color: #f39c12;
+    }
+
+    .quick-actions {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .quick-actions h3 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    .quick-actions button {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .section {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .section h3 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .card-header h4 {
+      color: #2c3e50;
+      font-size: 18px;
+    }
+
+    .card-body p {
+      margin: 8px 0;
+      color: #495057;
+      font-size: 14px;
+    }
+
+    .card-body strong {
+      color: #2c3e50;
+      margin-right: 5px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .form-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .form-card h3 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 5px;
+      color: #6c757d;
+      font-size: 12px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table thead {
+      background: #f8f9fa;
+    }
+
+    table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    table td {
+      padding: 12px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .badge-secondary {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+
+    .priority-high {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .priority-medium {
+      background: #fff3cd;
+      color: #856404;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .priority-low {
+      background: #d1ecf1;
+      color: #0c5460;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+      font-size: 16px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .modal-header h3 {
+      color: #2c3e50;
+      font-size: 20px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6c757d;
+    }
+
+    .modal-close:hover {
+      color: #dc3545;
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 15px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        flex-wrap: wrap;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div *ngIf="bankAdmin" class="container">
+  <div class="header">
+    <div class="header-left">
+      <h1>🏦 Bank Admin Dashboard</h1>
+      <p>{{bankAdmin.bankName}}</p>
+    </div>
+    <div class="header-right">
+      <span>Welcome, {{bankAdmin.name}}</span>
+      <button (click)="logout()" class="btn-logout">Logout</button>
+    </div>
+  </div>
+
+  <div *ngIf="message" [class]="'alert alert-' + messageType">
+    {{message}}
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'dashboard'" (click)="setActiveTab('dashboard')">📊 Dashboard</button>
+    <button [class.active]="activeTab === 'organizations'" (click)="setActiveTab('organizations')">🏢 Organizations</button>
+    <button [class.active]="activeTab === 'employees'" (click)="setActiveTab('employees')">👥 Employees</button>
+    <button [class.active]="activeTab === 'disbursements'" (click)="setActiveTab('disbursements')">💰 Disbursements</button>
+    <button [class.active]="activeTab === 'concerns'" (click)="setActiveTab('concerns')">📢 Concerns</button>
+    <button [class.active]="activeTab === 'vendors'" (click)="setActiveTab('vendors')">🏪 Vendor Payments</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  <!-- Dashboard Tab -->
+  <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+    <h2>Dashboard Overview</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>{{dashboardStats.pendingOrganizations || 0}}</h3>
+        <p>Pending Organizations</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{dashboardStats.totalOrganizations || 0}}</h3>
+        <p>Total Organizations</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{dashboardStats.pendingEmployees || 0}}</h3>
+        <p>Pending Employees</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{dashboardStats.pendingDisbursements || 0}}</h3>
+        <p>Pending Disbursements</p>
+      </div>
+      <div class="stat-card stat-card-concern">
+        <h3>{{dashboardStats.pendingConcerns || 0}}</h3>
+        <p>Pending Concerns</p>
+      </div>
+      <div class="stat-card stat-card-vendor">
+        <h3>{{dashboardStats.pendingVendorPayments || 0}}</h3>
+        <p>Pending Vendor Payments</p>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <button (click)="setActiveTab('organizations'); showOrgForm = true" class="btn-primary">➕ Add Organization</button>
+      <button (click)="setActiveTab('employees')" class="btn-secondary">👁️ Review Employees</button>
+      <button (click)="setActiveTab('concerns')" class="btn-secondary">📢 View Concerns</button>
+      <button (click)="setActiveTab('vendors')" class="btn-secondary">🏪 Vendor Payments</button>
+    </div>
+  </div>
+
+  <!-- Organizations Tab -->
+  <div *ngIf="activeTab === 'organizations'" class="tab-content">
+    <div class="section-header">
+      <h2>Organization Management</h2>
+      <button *ngIf="!showOrgForm" (click)="showOrgForm = true" class="btn-primary">➕ Add Organization</button>
+      <button *ngIf="showOrgForm" (click)="resetOrgForm()" class="btn-secondary">❌ Cancel</button>
+    </div>
+
+    <div *ngIf="showOrgForm" class="form-card">
+      <h3>Register New Organization</h3>
+      <form>
+        <div class="form-group">
+          <label>Organization Name *</label>
+          <input type="text" [(ngModel)]="organizationForm.name" name="name" placeholder="Enter organization name" required>
+        </div>
+        <div class="form-group">
+          <label>Official Email *</label>
+          <input type="email" [(ngModel)]="organizationForm.officialEmail" name="email" placeholder="org@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Contact Number *</label>
+          <input type="tel" [(ngModel)]="organizationForm.contactNumber" name="phone" placeholder="+91 XXXXXXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label>Address *</label>
+          <textarea [(ngModel)]="organizationForm.address" name="address" placeholder="Enter complete address" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Registration Number *</label>
+          <input type="text" [(ngModel)]="organizationForm.registrationNumber" name="regNumber" placeholder="Enter registration number" required>
+        </div>
+        <div class="form-group">
+          <label>Registration Document *</label>
+          <input type="file" (change)="onFileSelect($event)" accept=".pdf,.jpg,.jpeg,.png" required>
+          <small>Upload registration certificate (PDF, JPG, PNG)</small>
+        </div>
+        <button type="button" (click)="addOrganization()" class="btn-primary" [disabled]="loading">
+          {{loading ? 'Submitting...' : '✅ Register Organization'}}
+        </button>
+      </form>
+    </div>
+
+    <div class="section">
+      <h3>⏳ Pending Approvals ({{pendingOrganizations.length}})</h3>
+      <div *ngIf="pendingOrganizations.length === 0" class="empty-state">No pending organizations</div>
+      <div *ngFor="let org of pendingOrganizations" class="card">
+        <div class="card-header">
+          <h4>{{org.name}}</h4>
+          <span class="badge badge-warning">{{org.status}}</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Email:</strong> {{org.officialEmail}}</p>
+          <p><strong>Phone:</strong> {{org.contactNumber}}</p>
+          <p><strong>Registration No:</strong> {{org.registrationNumber}}</p>
+          <p><strong>Address:</strong> {{org.address}}</p>
+          <p *ngIf="org.documentUrl"><strong>Document:</strong> <a [href]="org.documentUrl" target="_blank">View Document</a></p>
+        </div>
+        <div class="card-actions">
+          <button (click)="approveOrganization(org.organizationId)" class="btn-success">✅ Approve</button>
+          <button (click)="rejectOrganization(org.organizationId)" class="btn-danger">❌ Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>📋 All Organizations ({{allOrganizations.length}})</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Registration No</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let org of allOrganizations">
+              <td>{{org.name}}</td>
+              <td>{{org.officialEmail}}</td>
+              <td>{{org.contactNumber}}</td>
+              <td>{{org.registrationNumber}}</td>
+              <td><span [class]="'badge badge-' + (org.status === 'APPROVED' ? 'success' : org.status === 'REJECTED' ? 'danger' : 'warning')">{{org.status}}</span></td>
+              <td>{{org.createdAt | date:'short'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employees Tab -->
+  <div *ngIf="activeTab === 'employees'" class="tab-content">
+    <h2>Employee Management</h2>
+    <div class="section">
+      <h3>⏳ Pending Employee Approvals ({{pendingEmployees.length}})</h3>
+      <div *ngIf="pendingEmployees.length === 0" class="empty-state">No pending employees to review</div>
+      <div *ngFor="let emp of pendingEmployees" class="card">
+        <div class="card-header">
+          <h4>{{emp.name}}</h4>
+          <span class="badge badge-warning">{{emp.status}}</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Email:</strong> {{emp.email}}</p>
+          <p><strong>Phone:</strong> {{emp.phoneNumber}}</p>
+          <p><strong>Designation:</strong> {{emp.designation}}</p>
+          <p><strong>Department:</strong> {{emp.department}}</p>
+          <p><strong>Organization:</strong> {{emp.organizationName}}</p>
+          <p *ngIf="emp.documentUrl"><strong>Document:</strong> <a [href]="emp.documentUrl" target="_blank">View Document</a></p>
+        </div>
+        <div class="card-actions">
+          <button (click)="reviewEmployee(emp.employeeId, true)" class="btn-success">✅ Approve</button>
+          <button (click)="reviewEmployee(emp.employeeId, false)" class="btn-danger">❌ Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disbursements Tab -->
+  <div *ngIf="activeTab === 'disbursements'" class="tab-content">
+    <h2>Salary Disbursement Management</h2>
+    <div class="section">
+      <h3>⏳ Pending Disbursements ({{pendingDisbursements.length}})</h3>
+      <div *ngIf="pendingDisbursements.length === 0" class="empty-state">No pending disbursements</div>
+      <div *ngFor="let disbursement of pendingDisbursements" class="card">
+        <div class="card-header">
+          <h4>{{disbursement.organizationName}}</h4>
+          <span class="badge badge-warning">{{disbursement.status}}</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Month:</strong> {{disbursement.month}}</p>
+          <p><strong>Total Amount:</strong> ₹{{disbursement.totalAmount | number:'1.2-2'}}</p>
+          <p><strong>Requested At:</strong> {{disbursement.requestedAt | date:'medium'}}</p>
+          <p><strong>Request ID:</strong> #{{disbursement.requestId}}</p>
+        </div>
+        <div class="card-actions">
+          <button (click)="approveDisbursement(disbursement.requestId)" class="btn-success">✅ Approve Disbursement</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concerns Tab -->
+  <div *ngIf="activeTab === 'concerns'" class="tab-content">
+    <h2>Concern Management</h2>
+    <div class="section">
+      <h3>📢 All Concerns ({{bankAdminConcerns.length}})</h3>
+      <div *ngIf="bankAdminConcerns.length === 0" class="empty-state">No concerns available</div>
+      <div *ngFor="let concern of bankAdminConcerns" class="card">
+        <div class="card-header">
+          <h4>{{concern.subject}}</h4>
+          <div style="display: flex; gap: 10px;">
+            <span [class]="getConcernPriorityClass(concern.priority)">{{concern.priority}}</span>
+            <span [class]="getConcernStatusClass(concern.status)">{{concern.status}}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p><strong>Description:</strong> {{concern.description}}</p>
+          <p><strong>Raised By:</strong> {{concern.employeeName}}</p>
+          <p *ngIf="concern.organizationAdminName"><strong>Organization Admin:</strong> {{concern.organizationAdminName}}</p>
+          <p><strong>Raised At:</strong> {{concern.raisedAt | date:'medium'}}</p>
+          <p *ngIf="concern.resolvedAt"><strong>Resolved At:</strong> {{concern.resolvedAt | date:'medium'}}</p>
+          <p *ngIf="concern.documentUrl"><strong>Attachment:</strong> <a [href]="concern.documentUrl" target="_blank">View Document</a></p>
+          <p *ngIf="concern.organizationReply" style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-top: 10px;">
+            <strong>Organization Reply:</strong><br>{{concern.organizationReply}}
+          </p>
+          <p *ngIf="concern.bankAdminReply" style="background: #e7f3ff; padding: 10px; border-radius: 6px; margin-top: 10px;">
+            <strong>Bank Admin Reply:</strong><br>{{concern.bankAdminReply}}
+          </p>
+        </div>
+        <div class="card-actions" *ngIf="concern.status !== 'RESOLVED' && concern.status !== 'CLOSED'">
+          <button (click)="openConcernReplyModal(concern)" class="btn-primary">💬 Reply to Concern</button>
+        </div>
+      </div> 

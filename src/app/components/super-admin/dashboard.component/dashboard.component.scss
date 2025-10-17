@@ -1,0 +1,127 @@
+.dashboard-container {
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.logout-btn {
+  background-color: #ff4d4d;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #e63939;
+  }
+}
+
+.actions {
+  text-align: right;
+  margin-bottom: 12px;
+}
+
+.add-btn {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.add-btn:hover {
+  background-color: #145ca1;
+}
+
+.form-container {
+  background: #fff;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.bank-list-container {
+  margin-top: 20px;
+}
+
+.bank-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+.bank-table th, .bank-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.bank-table th {
+  background-color: #f4f6f8;
+  font-weight: 600;
+}
+
+.active {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.inactive {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.edit-btn, .delete-btn, .status-btn {
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-right: 5px;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.edit-btn {
+  background-color: #0288d1;
+  color: #fff;
+}
+
+.delete-btn {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.status-btn.activate {
+  background-color: #2e7d32;
+  color: #fff;
+}
+
+.status-btn.deactivate {
+  background-color: #f57c00;
+  color: #fff;
+}
+
+.edit-btn:hover { background-color: #0277bd; }
+.delete-btn:hover { background-color: #b71c1c; }
+.status-btn.activate:hover { background-color: #1b5e20; }
+.status-btn.deactivate:hover { background-color: #ef6c00; }
+
+.loading, .empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #555;
+}

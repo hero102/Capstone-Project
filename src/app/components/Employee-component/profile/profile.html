@@ -1,0 +1,548 @@
+<div class="profile-wrapper" *ngIf="profile">
+  <div class="profile-container">
+    <!-- Profile Header Card -->
+    <div class="profile-header-card">
+      <div class="profile-cover"></div>
+      <div class="profile-main">
+        <div class="profile-avatar-section">
+          <div class="avatar-wrapper">
+            <img
+              [src]="profile.photoUrl || 'https://via.placeholder.com/150'"
+              alt="Profile Photo"
+              class="profile-avatar"
+            />
+            <label for="fileInput" class="avatar-edit-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              <input type="file" id="fileInput" (change)="onFileSelected($event)" style="display: none;" />
+            </label>
+          </div>
+          <button class="btn-upload-photo" (click)="uploadPhoto()" [disabled]="!selectedFile">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Upload Photo
+          </button>
+        </div>
+
+        <div class="profile-info-section">
+          <h1 class="profile-name">{{ profile.name }}</h1>
+          <p class="profile-designation">{{ profile.designation }}</p>
+          <div class="profile-badges">
+            <span class="badge badge-success">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              {{ profile.status }}
+            </span>
+            <span class="badge badge-info">Verified Employee</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Details Grid -->
+    <div class="profile-grid">
+      <!-- Personal Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <div class="card-icon card-icon-purple">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <h3>Personal Information</h3>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <div class="info-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              Email Address
+            </div>
+            <div class="info-value">{{ profile.email }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              Phone Number
+            </div>
+            <div class="info-value">{{ profile.phoneNumber }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Department
+            </div>
+            <div class="info-value">{{ profile.department }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Status Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <div class="card-icon card-icon-blue">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <h3>Account Status</h3>
+        </div>
+        <div class="card-body">
+          <div class="status-item status-active">
+            <div class="status-dot"></div>
+            <div>
+              <div class="status-title">Employment Status</div>
+              <div class="status-subtitle">{{ profile.status }}</div>
+            </div>
+          </div>
+          <div class="status-item status-verified">
+            <div class="status-dot"></div>
+            <div>
+              <div class="status-title">Account Verification</div>
+              <div class="status-subtitle">Verified & Active</div>
+            </div>
+          </div>
+          <div class="status-item status-complete">
+            <div class="status-dot"></div>
+            <div>
+              <div class="status-title">Profile Completion</div>
+              <div class="status-subtitle">100% Complete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-alert" *ngIf="message">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      {{ message }}
+    </div>
+  </div>
+</div>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.profile-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Profile Header Card */
+.profile-header-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-cover {
+  height: 180px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+}
+
+.profile-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,0 L50,20 L100,10 L150,30 L200,20 L250,40 L300,30 L350,50 L400,40 L450,60 L500,50 L550,70 L600,60 L650,80 L700,70 L750,90 L800,80 L850,100 L900,90 L950,110 L1000,100 L1050,120 L1100,110 L1150,120 L1200,120 L1200,0 Z" fill="rgba(255,255,255,0.1)"/></svg>') repeat-x bottom;
+  background-size: 1200px 120px;
+  opacity: 0.3;
+}
+
+.profile-main {
+  padding: 0 40px 40px;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  margin-top: -60px;
+  position: relative;
+}
+
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-wrapper {
+  position: relative;
+}
+
+.profile-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid white;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeInScale 0.6s ease-out 0.2s backwards;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.avatar-edit-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-upload-photo {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-upload-photo:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-upload-photo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-info-section {
+  flex: 1;
+  padding-top: 70px;
+}
+
+.profile-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 6px;
+  animation: fadeInUp 0.6s ease-out 0.3s backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-designation {
+  font-size: 16px;
+  color: #718096;
+  margin-bottom: 16px;
+  animation: fadeInUp 0.6s ease-out 0.4s backwards;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.6s ease-out 0.5s backwards;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+/* Profile Grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.info-card:nth-child(1) { animation-delay: 0.6s; }
+.info-card:nth-child(2) { animation-delay: 0.7s; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon-purple {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  color: #667eea;
+}
+
+.card-icon-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+  color: #3b82f6;
+}
+
+.card-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #718096;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+/* Status Items */
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-active .status-dot {
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+}
+
+.status-verified .status-dot {
+  background: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.status-complete .status-dot {
+  background: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.status-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 4px;
+}
+
+.status-subtitle {
+  font-size: 13px;
+  color: #718096;
+}
+
+/* Success Alert */
+.success-alert {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #10b981;
+  font-size: 14px;
+  font-weight: 600;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-wrapper {
+    padding: 16px;
+  }
+
+  .profile-main {
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 32px;
+  }
+
+  .profile-info-section {
+    padding-top: 0;
+    text-align: center;
+  }
+
+  .profile-name {
+    font-size: 24px;
+  }
+
+  .profile-badges {
+    justify-content: center;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header,
+  .card-body {
+    padding: 20px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+</style>

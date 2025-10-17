@@ -1,0 +1,14 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>🏢 Organization Admin Login</h2>
+
+    <div *ngIf="message" class="alert">{{ message }}</div>
+
+    <input type="email" [(ngModel)]="email" placeholder="Email" />
+    <input type="password" [(ngModel)]="password" placeholder="Password" />
+
+    <button (click)="login()" [disabled]="loading">
+      {{ loading ? 'Logging in...' : 'Login' }}
+    </button>
+  </div>
+</div>
