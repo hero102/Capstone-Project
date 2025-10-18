@@ -8,7 +8,7 @@ import { ConcernsComponent } from './components/Employee-component/concerns/conc
 
 // 🏢 Organization Admin Components
 import { OrgLoginComponent } from './components/Organization-Admin-component/org-login/org-login';
-import { OrgDashboardComponent } from './components/Organization-Admin-component/org-dashboard/org-dashboard';
+import { OrgDashboardComponent } from './components/org-dashboard/org-dashboard';
 import { EmployeeManagementComponent } from './components/Organization-Admin-component/employee-management/employee-management';
 import { SalaryManagementComponent } from './components/Organization-Admin-component/salary-management/salary-management';
 import { DisbursementComponent } from './components/Organization-Admin-component/disbursement/disbursement';
@@ -90,6 +90,8 @@ export const routes: Routes = [
     ]
   },
 
+
+  
   // 🏦 Bank Routes
   { 
     path: 'bank', 
@@ -115,6 +117,21 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
+
+// 🏢 Organization Routes
+{
+  path: 'organisation',
+  children: [
+    {
+      path: 'dashboard',
+      component: OrganizationsComponent,
+      canActivate: [AuthGuard],
+      data: { roles: ['ROLE_ORGANISATION'] } // new role for organization
+    },
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+  ]
+},
+
 
   // 🚫 Fallback
   { path: '**', redirectTo: 'login' }

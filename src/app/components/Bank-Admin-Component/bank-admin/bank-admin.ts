@@ -162,26 +162,57 @@ export class BankAdminComponent implements OnInit {
   }
 
  loadBankAdminData(): void {
-  const storedEmail = localStorage.getItem('email');
-  const storedRole = localStorage.getItem('role');
+  // 1️⃣ Get localStorage values
   const storedUsername = localStorage.getItem('username');
+  const storedRole = localStorage.getItem('role');
 
-  // 👇 we only have simple strings, so no JSON.parse here
-  if (storedUsername && storedRole === 'ROLE_BANK_ADMIN') {
-    this.bankAdmin = {
-      bankAdminId: 0, // replace with actual ID if needed
-      name: storedUsername,
-      email: storedEmail || '',
-      phoneNumber: '',
-      status: 'ACTIVE',
-      bankName: '',
-      bankId: 0
-    };
-    this.loadDashboardData();
-  } else {
-    this.router.navigate(['/login']);
+  console.log('BankAdmin load:', storedUsername, storedRole);
+
+  // 2️⃣ If not logged in as bank admin, clear storage & redirect
+  if (!storedUsername || storedRole !== 'ROLE_BANK_ADMIN') {
+    console.warn('Bank Admin not logged in or role mismatch, redirecting to login...');
+    localStorage.clear(); // optional, but safe
+    this.router.navigate(['/bank-admin/login']);
+    return; // stop further execution
   }
+
+  // 3️⃣ Prevent multiple HTTP calls if already loaded
+  if (this.bankAdmin) {
+    console.log('Bank Admin already loaded, skipping fetch.');
+    return;
+  }
+
+  // 4️⃣ Fetch bank admin details from backend
+  this.loading = true;
+  this.http.get<BankAdmin>(`${this.apiUrl}/bank-admins/by-username/${storedUsername}`)
+    .subscribe({
+      next: (admin) => {
+        if (!admin) {
+          console.error('Bank Admin not found in backend');
+          this.showMessage('Bank Admin not found', 'error');
+          localStorage.clear(); // clear to avoid repeated redirects
+          this.router.navigate(['/bank-admin/login']);
+          return;
+        }
+
+        // ✅ Save bank admin locally
+        this.bankAdmin = admin;
+        console.log('Bank Admin loaded:', admin);
+
+        // 5️⃣ Load dashboard and related data
+        this.loadDashboardData();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to fetch Bank Admin details', err);
+        this.showMessage('Failed to load bank admin data', 'error');
+        localStorage.clear(); // clear to avoid repeated redirects
+        this.router.navigate(['/bank-admin/login']);
+        this.loading = false;
+      }
+    });
 }
+
 
 
   loadDashboardData(): void {
@@ -250,49 +281,48 @@ export class BankAdminComponent implements OnInit {
   }
 
   addOrganization(): void {
-    if (!this.bankAdmin) return;
+  if (!this.bankAdmin) return;
 
-    if (!this.organizationForm.name ||
-        !this.organizationForm.officialEmail ||
-        !this.organizationForm.registrationNumber ||
-        !this.organizationForm.document) {
-      this.showMessage('Please fill all required fields', 'error');
-      return;
-    }
-
-    this.loading = true;
-    const formData = new FormData();
-
-    const orgData = {
-      name: this.organizationForm.name,
-      officialEmail: this.organizationForm.officialEmail,
-      contactNumber: this.organizationForm.contactNumber,
-      address: this.organizationForm.address,
-      registrationNumber: this.organizationForm.registrationNumber
-    };
-
-    formData.append('data', JSON.stringify(orgData));
-    if (this.organizationForm.document) {
-      formData.append('document', this.organizationForm.document);
-    }
-
-    this.http.post(
-      `${this.apiUrl}/organizations/register/${this.bankAdmin.bankAdminId}`,
-      formData
-    ).subscribe({
-      next: () => {
-        this.showMessage('Organization registered successfully', 'success');
-        this.resetOrgForm();
-        this.loadPendingOrganizations();
-        this.loadAllOrganizations();
-        this.loading = false;
-      },
-      error: (err) => {
-        this.showMessage(err.error?.message || 'Failed to register organization', 'error');
-        this.loading = false;
-      }
-    });
+  if (!this.organizationForm.name ||
+      !this.organizationForm.officialEmail ||
+      !this.organizationForm.registrationNumber ||
+      !this.organizationForm.document) {
+    this.showMessage('Please fill all required fields', 'error');
+    return;
   }
+
+  this.loading = true;
+  const formData = new FormData();
+
+  const orgData = {
+    name: this.organizationForm.name,
+    officialEmail: this.organizationForm.officialEmail,
+    contactNumber: this.organizationForm.contactNumber,
+    address: this.organizationForm.address,
+    registrationNumber: this.organizationForm.registrationNumber
+  };
+
+  formData.append('data', JSON.stringify(orgData));
+  formData.append('document', this.organizationForm.document!);
+
+  this.http.post(
+    `${this.apiUrl}/organizations/register/${this.bankAdmin.bankAdminId}`,
+    formData
+  ).subscribe({
+    next: () => {
+      this.showMessage('Organization registered successfully', 'success');
+      this.resetOrgForm();
+      this.loadPendingOrganizations();
+      this.loadAllOrganizations();
+      this.loading = false;
+    },
+    error: (err) => {
+      this.showMessage(err.error?.message || 'Failed to register organization', 'error');
+      this.loading = false;
+    }
+  });
+}
+
 
   approveOrganization(orgId: number): void {
     if (!this.bankAdmin || !confirm('Approve this organization?')) return;
