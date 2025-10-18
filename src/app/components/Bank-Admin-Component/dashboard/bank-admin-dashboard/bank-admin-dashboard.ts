@@ -24,6 +24,6 @@ export class BankAdminDashboardComponent implements OnInit {
 
   logout() {
     localStorage.clear();
-    this.router.navigate(['/bank-admin/login']);
+    this.router.navigate(['/login']);
   }
 }

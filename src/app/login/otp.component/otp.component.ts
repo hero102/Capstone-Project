@@ -71,8 +71,13 @@ export class OtpVerificationComponent implements OnInit {
           setTimeout(() => {
             switch (res.roleName) {
               case 'ROLE_SUPER_ADMIN':
-              case 'ROLE_MAIN_ADMIN':
                 window.location.href = '/super-admin/dashboard';
+                break;
+              case 'ROLE_Employee':
+                window.location.href = '/dashboard';
+                break;
+              case 'ROLE_BANK':
+                window.location.href = '/bank';
                 break;
               case 'ROLE_BANK_ADMIN':
                 window.location.href = '/bank-admin/dashboard';

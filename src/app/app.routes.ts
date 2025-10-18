@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
 
-// Employee Components
-
+// 🧍 Employee Components
 import { DashboardComponent } from './components/Employee-component/dashboard/dashboard';
 import { ProfileComponent } from './components/Employee-component/profile/profile';
 import { SalaryComponent } from './components/Employee-component/salary/salary';
 import { ConcernsComponent } from './components/Employee-component/concerns/concerns';
 
-// Organization Admin Components
+// 🏢 Organization Admin Components
 import { OrgLoginComponent } from './components/Organization-Admin-component/org-login/org-login';
 import { OrgDashboardComponent } from './components/Organization-Admin-component/org-dashboard/org-dashboard';
 import { EmployeeManagementComponent } from './components/Organization-Admin-component/employee-management/employee-management';
@@ -15,61 +14,64 @@ import { SalaryManagementComponent } from './components/Organization-Admin-compo
 import { DisbursementComponent } from './components/Organization-Admin-component/disbursement/disbursement';
 import { TransactionsComponent } from './components/Organization-Admin-component/transactions/transactions';
 
-// Bank Admin Components (NEW)
-//import { BankAdminLoginComponent } from './components/Bank-Admin/login/bank-admin-login/bank-admin-login';
-//import { BankAdminDashboardComponent } from './components/Bank-Admin/dashboard/bank-admin-dashboard/bank-admin-dashboard';
+// 🏦 Bank Admin Components
+import { BankAdminLoginComponent } from './components/Bank-Admin-Component/login/bank-admin-login/bank-admin-login';
+import { BankAdminDashboardComponent } from './components/Bank-Admin-Component/dashboard/bank-admin-dashboard/bank-admin-dashboard';
 import { OrganizationsComponent } from './components/Bank-Admin-Component/organizations/organizations';
 import { EmployeesComponent } from './components/Bank-Admin-Component/employees/employees';
 import { DisbursementsComponent } from './components/Bank-Admin-Component/disbursements/disbursements';
 import { CreateAdminComponent } from './components/Bank-Admin-Component/create-admin/create-admin';
-// Guards
-import { OrgAdminGuard } from './guards/org-admin-guard';
-import { BankAdminLogin } from './components/Bank-Admin-Component/bank-admin-login/bank-admin-login';
-import { BankAdminComponent } from './components/Bank-Admin-Component/bank-admin/bank-admin';
-import { LoginComponent } from './login/login';
-
 
 // 🧾 Super Admin Components
 import { SuperAdminDashboardComponent } from './components/super-admin/dashboard.component/dashboard.component';
 import { AddEditBankComponent } from './components/super-admin/bank-add-edit.component/bank-add-edit.component';
 
-// 🏦 Bank Components
+// 🏛 Bank Components
 import { BankDashboardComponent } from './components/bank-dashboard.component/bank-dashboard.component';
 
-// Home
+// 🏡 Common Components
 import { HomeComponent } from './components/home/home';
+import { LoginComponent } from './login/login';
 
-// 🔒 Guards
-import { AuthGuard } from './guards/auth.guard'; // common guard
+// 🔒 Guard
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  // 🏠 Default Route
+  // 🏠 Default
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
 
+  // 👤 Employee Routes
+  { path: 'login', component: LoginComponent },
+  { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_EMPLOYEE'] }
+  },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_EMPLOYEE'] } },
+  { path: 'salary', component: SalaryComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_EMPLOYEE'] } },
+  { path: 'concerns', component: ConcernsComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_EMPLOYEE'] } },
 
-  // Employee Routes
-  { path: 'login', component: LoginComponent},
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'salary', component: SalaryComponent },
-  { path: 'concerns', component: ConcernsComponent },
-
-  // Organization Admin Routes
+  // 🏢 Organization Admin Routes
   {
     path: 'org-admin',
     children: [
-      { path: 'login', component: OrgLoginComponent },
-      { path: 'dashboard', component: OrgDashboardComponent, canActivate: [OrgAdminGuard] },
-      { path: 'employees', component: EmployeeManagementComponent, canActivate: [OrgAdminGuard] },
-      { path: 'salary', component: SalaryManagementComponent, canActivate: [OrgAdminGuard] },
-      { path: 'disbursement', component: DisbursementComponent, canActivate: [OrgAdminGuard] },
-      { path: 'transactions', component: TransactionsComponent, canActivate: [OrgAdminGuard] },
-      { path: '', redirectTo: 'login', pathMatch: 'full' }
+      { 
+        path: 'dashboard', 
+        component: OrgDashboardComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_ORG_ADMIN'] }
+      },
+      { path: 'employees', component: EmployeeManagementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
+      { path: 'salary', component: SalaryManagementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
+      { path: 'disbursement', component: DisbursementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
+      { path: 'transactions', component: TransactionsComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
-   // 🧾 Super Admin Routes
+  // 🧾 Super Admin Routes
   {
     path: 'super-admin',
     children: [
@@ -85,30 +87,36 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_SUPER_ADMIN'] }
       },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
-  // 🏦 Bank Route
-  {
+  // 🏦 Bank Routes
+  { 
     path: 'bank', 
     component: BankDashboardComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_BANK'] }
   },
 
-  // Bank Admin Routes (NEW)
+  // 🏧 Bank Admin Routes
   {
     path: 'bank-admin',
     children: [
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
-      { path: 'login', component: BankAdminLogin },
-      { path: 'dashboard', component: BankAdminComponent },
-      { path: 'organizations', component: OrganizationsComponent },
-      { path: 'employees', component: EmployeesComponent },
-      { path: 'disbursements', component: DisbursementsComponent },
-      { path: 'create-admin', component: CreateAdminComponent }
+      { 
+        path: 'dashboard', 
+        component: BankAdminDashboardComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_BANK_ADMIN'] }
+      },
+      { path: 'organizations', component: OrganizationsComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_BANK_ADMIN'] } },
+      { path: 'employees', component: EmployeesComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_BANK_ADMIN'] } },
+      { path: 'disbursements', component: DisbursementsComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_BANK_ADMIN'] } },
+      { path: 'create-admin', component: CreateAdminComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_BANK_ADMIN'] } },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
+  // 🚫 Fallback
   { path: '**', redirectTo: 'login' }
 ];
