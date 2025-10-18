@@ -1,25 +1,13 @@
-// import { ApplicationConfig } from '@angular/core';
-// import { provideRouter } from '@angular/router';
-// import { provideHttpClient } from '@angular/common/http';
-// import { routes } from './app.routes';
-
-// export const appConfig: ApplicationConfig = {
-//   providers: [
-//     provideRouter(routes),
-//     provideHttpClient() // ✅ This fixes "_HttpClient" error
-//   ]
-// };
-
-
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient ,withInterceptorsFromDi} from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
+import { jwtInterceptor } from './guards/interceptors/jwt.interceptor';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-   provideHttpClient(withInterceptorsFromDi()) // ✅ No withFetch()
+    provideHttpClient(withInterceptors([jwtInterceptor])) // ✅ attach interceptor
   ]
 };
-

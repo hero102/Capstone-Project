@@ -15,8 +15,6 @@ import { DisbursementComponent } from './components/Organization-Admin-component
 import { TransactionsComponent } from './components/Organization-Admin-component/transactions/transactions';
 
 // 🏦 Bank Admin Components
-import { BankAdminLoginComponent } from './components/Bank-Admin-Component/login/bank-admin-login/bank-admin-login';
-import { BankAdminDashboardComponent } from './components/Bank-Admin-Component/dashboard/bank-admin-dashboard/bank-admin-dashboard';
 import { OrganizationsComponent } from './components/Bank-Admin-Component/organizations/organizations';
 import { EmployeesComponent } from './components/Bank-Admin-Component/employees/employees';
 import { DisbursementsComponent } from './components/Bank-Admin-Component/disbursements/disbursements';
@@ -35,6 +33,7 @@ import { LoginComponent } from './login/login';
 
 // 🔒 Guard
 import { AuthGuard } from './guards/auth.guard';
+import { BankAdminComponent } from './components/Bank-Admin-Component/bank-admin/bank-admin';
 
 export const routes: Routes = [
   // 🏠 Default
@@ -105,7 +104,7 @@ export const routes: Routes = [
     children: [
       { 
         path: 'dashboard', 
-        component: BankAdminDashboardComponent,
+        component: BankAdminComponent,
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_BANK_ADMIN'] }
       },

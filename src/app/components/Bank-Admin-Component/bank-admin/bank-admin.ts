@@ -161,15 +161,28 @@ export class BankAdminComponent implements OnInit {
     this.loadBankAdminData();
   }
 
-  loadBankAdminData(): void {
-    const adminData = localStorage.getItem('bankAdmin');
-    if (adminData) {
-      this.bankAdmin = JSON.parse(adminData);
-      this.loadDashboardData();
-    } else {
-      this.router.navigate(['/login']);
-    }
+ loadBankAdminData(): void {
+  const storedEmail = localStorage.getItem('email');
+  const storedRole = localStorage.getItem('role');
+  const storedUsername = localStorage.getItem('username');
+
+  // 👇 we only have simple strings, so no JSON.parse here
+  if (storedUsername && storedRole === 'ROLE_BANK_ADMIN') {
+    this.bankAdmin = {
+      bankAdminId: 0, // replace with actual ID if needed
+      name: storedUsername,
+      email: storedEmail || '',
+      phoneNumber: '',
+      status: 'ACTIVE',
+      bankName: '',
+      bankId: 0
+    };
+    this.loadDashboardData();
+  } else {
+    this.router.navigate(['/login']);
   }
+}
+
 
   loadDashboardData(): void {
     if (!this.bankAdmin) return;
@@ -625,9 +638,13 @@ export class BankAdminComponent implements OnInit {
     }, 5000);
   }
 
-  logout(): void {
-    localStorage.removeItem('bankAdmin');
-    this.router.navigate(['/login']);
-  }
+logout(): void {
+  localStorage.removeItem('username');
+  localStorage.removeItem('email');
+  localStorage.removeItem('role');
+  localStorage.removeItem('token');
+  this.router.navigate(['/bank-admin/login']);
+}
+
 }
 
