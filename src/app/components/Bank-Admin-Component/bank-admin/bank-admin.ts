@@ -330,7 +330,11 @@ export class BankAdminComponent implements OnInit {
     this.loading = true;
     this.http.put(
       `${this.apiUrl}/organizations/approve/${this.bankAdmin.bankAdminId}/${orgId}`,
-      {}
+      {},
+        
+      
+      { responseType: 'text' as 'json' }   // ✅ add this line
+
     ).subscribe({
       next: () => {
         this.showMessage('Organization approved successfully', 'success');
@@ -677,4 +681,3 @@ logout(): void {
 }
 
 }
-

@@ -1,91 +1,49 @@
-<!-- src/app/components/org-admin/org-dashboard/org-dashboard.component.html -->
-
-<div class="dashboard-container">
-  <nav class="sidebar">
-    <div class="sidebar-header">
-      <h2>🏢 {{ orgAdmin?.organizationName }}</h2>
-      <p>{{ orgAdmin?.email }}</p>
-    </div>
-
-    <ul class="nav-menu">
-      <li>
-        <a routerLink="/org-admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-          <span>📊</span> Dashboard
-        </a>
-      </li>
-      <li>
-        <a routerLink="/org-admin/employees" routerLinkActive="active">
-          <span>👥</span> Employee Management
-        </a>
-      </li>
-      <li>
-        <a routerLink="/org-admin/salary" routerLinkActive="active">
-          <span>💰</span> Salary Management
-        </a>
-      </li>
-      <li>
-        <a routerLink="/org-admin/disbursement" routerLinkActive="active">
-          <span>💸</span> Disbursement
-        </a>
-      </li>
-      <li>
-        <a routerLink="/org-admin/transactions" routerLinkActive="active">
-          <span>📜</span> Transactions
-        </a>
-      </li>
-    </ul>
-
-    <button class="logout-btn" (click)="logout()">🚪 Logout</button>
-  </nav>
-
-  <main class="main-content">
-    <div class="welcome-section">
-      <h1>Welcome back! 👋</h1>
-      <p>Manage your organization's payroll efficiently</p>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-info">
-            <h3>{{ stats.totalEmployees }}</h3>
-            <p>Total Employees</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">✅</div>
-          <div class="stat-info">
-            <h3>{{ stats.activeEmployees }}</h3>
-            <p>Active Employees</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-info">
-            <h3>₹{{ stats.monthlySalary | number }}</h3>
-            <p>Monthly Payroll</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📅</div>
-          <div class="stat-info">
-            <h3>{{ currentMonth }}</h3>
-            <p>Current Month</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="quick-actions">
-        <h2>Quick Actions</h2>
-        <div class="action-buttons">
-          <button class="action-btn" routerLink="/org-admin/employees/add">➕ Add Employee</button>
-          <button class="action-btn" routerLink="/org-admin/salary/generate">🧮 Generate Salaries</button>
-          <button class="action-btn" routerLink="/org-admin/disbursement">💸 Request Disbursement</button>
-          <button class="action-btn" routerLink="/org-admin/employees">👥 View Employees</button>
-        </div>
-      </div>
-    </div>
-  </main>
+<div class="admin-form">
+  <h2>Add Organization Admin</h2>
+  <input type="text" placeholder="Name" [(ngModel)]="name">
+  <input type="email" placeholder="Email" [(ngModel)]="email">
+  <input type="text" placeholder="Phone Number" [(ngModel)]="phoneNumber">
+  <input type="text" placeholder="Designation" [(ngModel)]="designation">
+  <input type="file" (change)="onFileSelected($event)">
+  <button (click)="createAdmin()">Create Admin</button>
+  <p *ngIf="message" class="message">{{ message }}</p>
 </div>
+
+<hr>
+
+<div class="admin-list" *ngIf="admins.length > 0">
+  <h2>Organization Admins</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Designation</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let admin of admins">
+        <td>{{ admin.name }}</td>
+        <td>{{ admin.email }}</td>
+        <td>{{ admin.phoneNumber }}</td>
+        <td>{{ admin.designation }}</td>
+        <td>{{ admin.status }}</td>
+        <td>
+          <button *ngIf="admin.status === 'ACTIVE'" 
+                  (click)="deactivateAdminWithPrompt(1, admin.organizationAdminId)">
+            Deactivate
+          </button>
+          <button *ngIf="admin.status === 'DEACTIVATED'" 
+                  (click)="reactivateAdmin(1, admin.organizationAdminId)">
+            Reactivate
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p *ngIf="!admins.length && !loading">No admins found.</p>

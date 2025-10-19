@@ -1,0 +1,99 @@
+<div class="dashboard-container">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2>🏢 {{ orgAdmin?.organizationName || 'Organization' }}</h2>
+      <p>{{ orgAdmin?.email || orgAdmin?.username || '' }}</p>
+    </div>
+
+    <ul class="nav-menu">
+      <li>
+        <a routerLink="/org-admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/org-admin/employees" routerLinkActive="active">
+          <span>👥</span> Employee Management
+        </a>
+      </li>
+      <li>
+        <a routerLink="/org-admin/salary" routerLinkActive="active">
+          <span>💰</span> Salary Management
+        </a>
+      </li>
+      <li>
+        <a routerLink="/org-admin/disbursement" routerLinkActive="active">
+          <span>💸</span> Disbursement
+        </a>
+      </li>
+      <li>
+        <a routerLink="/org-admin/transactions" routerLinkActive="active">
+          <span>📜</span> Transactions
+        </a>
+      </li>
+    </ul>
+
+    <button class="logout-btn" (click)="logout()">
+      🚪 Logout
+    </button>
+  </nav>
+
+  <main class="main-content">
+    <div class="welcome-section">
+      <h1>Welcome back! 👋</h1>
+      <p>Manage your organization's payroll efficiently</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <h3>{{ stats.totalEmployees }}</h3>
+            <p>Total Employees</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <h3>{{ stats.activeEmployees }}</h3>
+            <p>Active Employees</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <h3>₹{{ stats.monthlySalary | number }}</h3>
+            <p>Monthly Payroll</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <h3>{{ currentMonth }}</h3>
+            <p>Current Month</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+          <button class="action-btn" routerLink="/org-admin/employees/add">
+            ➕ Add Employee
+          </button>
+          <button class="action-btn" routerLink="/org-admin/salary/generate">
+            🧮 Generate Salaries
+          </button>
+          <button class="action-btn" routerLink="/org-admin/disbursement">
+            💸 Request Disbursement
+          </button>
+          <button class="action-btn" routerLink="/org-admin/employees">
+            👥 View Employees
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

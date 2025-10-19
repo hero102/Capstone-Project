@@ -45,34 +45,41 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/resend-otp`, { usernameOrEmail });
   }
 
-  // ✅ Request password reset (sends OTP)
-  requestPasswordReset(identifier: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/password-reset/request`, { identifier });
-  }
+  // ✅ Request password reset (send OTP to email)
+requestPasswordReset(identifier: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/forgot-password/request`, { identifier });
+}
 
-  // ✅ Verify OTP and reset password
-  verifyResetOtpAndChangePassword(
-    identifier: string,
-    otp: string,
-    newPassword: string
-  ): Observable<any> {
-    return this.http.post(`${this.baseUrl}/password-reset/verify`, {
-      identifier,
-      otp,
-      newPassword
-    });
-  }
+// ✅ Verify OTP and reset password
+verifyResetOtpAndChangePassword(identifier: string, otp: string, newPassword: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/forgot-password/verify`, {
+    identifier,
+    otp,
+    newPassword
+  });
+}
+
 
   // ✅ Save session data (after login success)
-  saveSession(res: LoginResponse) {
-    if (res.jwtToken) localStorage.setItem(this.TOKEN_KEY, res.jwtToken);
-    if (res.roleName) localStorage.setItem(this.ROLE_KEY, res.roleName);
-    if (res.username) localStorage.setItem(this.USERNAME_KEY, res.username);
-    if (res.email) localStorage.setItem(this.EMAIL_KEY, res.email);
-    if (res.employeeId) localStorage.setItem(this.EMP_ID_KEY, String(res.employeeId));
+ // ✅ Save session data (after login success)
+saveSession(res: LoginResponse) {
+  if (res.jwtToken) localStorage.setItem(this.TOKEN_KEY, res.jwtToken);
+  if (res.roleName) localStorage.setItem(this.ROLE_KEY, res.roleName);
+  if (res.username) localStorage.setItem(this.USERNAME_KEY, res.username);
+  if (res.email) localStorage.setItem(this.EMAIL_KEY, res.email);
+  if (res.employeeId) localStorage.setItem(this.EMP_ID_KEY, String(res.employeeId));
 
-    console.log('✅ Session saved:', res);
-  }
+  // ✅ Store combined user info for dashboard usage
+  const userObject = {
+    username: res.username,
+    email: res.email,
+    role: res.roleName
+  };
+  localStorage.setItem('user', JSON.stringify(userObject));
+
+  console.log('✅ Session saved:', userObject);
+}
+
 
   // ✅ Get stored JWT token
   getToken(): string | null {

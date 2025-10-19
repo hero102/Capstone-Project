@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { RecaptchaComponent, RecaptchaModule } from 'ng-recaptcha';
 import { trigger, transition, style, animate } from '@angular/animations';
-
 import { OtpVerificationComponent } from './otp.component/otp.component';
 import { AuthService, LoginRequest, LoginResponse } from '../services/auth';
 
@@ -27,6 +26,7 @@ import { AuthService, LoginRequest, LoginResponse } from '../services/auth';
   ]
 })
 export class LoginComponent implements OnInit {
+  // -------------------- LOGIN STATE --------------------
   form: LoginRequest = { usernameOrEmail: '', password: '', captchaToken: '', otp: '' };
   step: 'LOGIN' | 'OTP' = 'LOGIN';
   loading = false;
@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
 
   @ViewChild('captchaRef') recaptchaRef!: RecaptchaComponent;
 
-  // Forgot password flow
+  // -------------------- FORGOT PASSWORD STATE --------------------
   showForgotPassword = false;
   reset = {
     identifier: '',
@@ -54,21 +54,24 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     const token = this.authService.getToken();
     const role = this.authService.getUserRole();
+
     if (token && role) {
       this.redirectByRole(role);
     }
 
-    // Return URL in case user tried to access protected route
+    // Capture return URL if redirected from a protected route
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
- onCaptchaResolved(token: string | null) {
-  this.form.captchaToken = token || '';
-}
+  // -------------------- CAPTCHA --------------------
+  onCaptchaResolved(token: string | null) {
+    this.form.captchaToken = token || '';
+  }
 
-
+  // -------------------- LOGIN --------------------
   onSubmit() {
     this.error = '';
+    this.showForgotPassword = false; // ✅ Ensure forgot password section is hidden
 
     if (!this.form.usernameOrEmail || !this.form.password) {
       this.error = 'Please enter your username/email and password.';
@@ -87,17 +90,15 @@ export class LoginComponent implements OnInit {
         this.loading = false;
 
         if (res.message === 'OTP_REQUIRED') {
-          this.step = 'OTP';
+          this.step = 'OTP'; // ✅ Show login OTP screen
+          this.showForgotPassword = false; // Hide forgot password
           this.resetCaptcha();
           return;
         }
 
         if (res.message === 'LOGIN_SUCCESS' && res.jwtToken) {
-          // Clear old session and save new session
           localStorage.clear();
           this.authService.saveSession(res);
-
-          // Redirect by role
           this.redirectByRole(res.roleName, this.returnUrl);
         } else {
           this.error = 'Invalid login response or missing token.';
@@ -124,18 +125,19 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  // -------------------- FORGOT PASSWORD --------------------
   requestResetOtp() {
     if (!this.reset.identifier) {
-      this.error = 'Please enter your email or username.';
+      alert('Please enter your email or username.');
       return;
     }
 
     this.reset.loading = true;
     this.authService.requestPasswordReset(this.reset.identifier).subscribe({
-      next: () => {
+      next: (res) => {
         this.reset.loading = false;
-        this.reset.step = 'OTP';
-        alert('OTP sent to your registered email.');
+        this.reset.step = 'OTP'; // ✅ Move to OTP step
+        alert(res?.message || 'OTP sent to your registered email.');
       },
       error: (err) => {
         this.reset.loading = false;
@@ -154,10 +156,13 @@ export class LoginComponent implements OnInit {
     this.authService
       .verifyResetOtpAndChangePassword(this.reset.identifier, this.reset.otp, this.reset.newPassword)
       .subscribe({
-        next: () => {
+        next: (res) => {
           this.reset.loading = false;
-          alert('Password reset successful! Please log in again.');
+          alert(res?.message || 'Password reset successful! Please log in again.');
+
+          // ✅ Reset everything and go back to login
           this.showForgotPassword = false;
+          this.step = 'LOGIN';
           this.reset = { identifier: '', otp: '', newPassword: '', step: 'REQUEST', loading: false };
         },
         error: (err) => {
@@ -167,6 +172,7 @@ export class LoginComponent implements OnInit {
       });
   }
 
+  // -------------------- CAPTCHA RESET --------------------
   resetCaptcha() {
     this.form.captchaToken = '';
     try {
@@ -182,6 +188,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  // -------------------- REDIRECT BASED ON ROLE --------------------
   private redirectByRole(roleName?: string, returnUrl?: string) {
     const role = roleName?.toUpperCase();
 
@@ -194,10 +201,11 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/bank']);
         break;
 
-         case 'ROLE_ORGANISATION':
+      case 'ROLE_ORGANISATION':
         this.router.navigate(['/organisation/dashboard']);
         break;
-          case 'ROLE_BANK_ADMIN':
+
+      case 'ROLE_BANK_ADMIN':
         this.router.navigate(['/bank-admin/dashboard']);
         break;
 
@@ -214,4 +222,4 @@ export class LoginComponent implements OnInit {
         break;
     }
   }
-}
+} 

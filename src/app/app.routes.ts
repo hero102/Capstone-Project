@@ -7,7 +7,6 @@ import { SalaryComponent } from './components/Employee-component/salary/salary';
 import { ConcernsComponent } from './components/Employee-component/concerns/concerns';
 
 // 🏢 Organization Admin Components
-import { OrgLoginComponent } from './components/Organization-Admin-component/org-login/org-login';
 import { OrgDashboardComponent } from './components/org-dashboard/org-dashboard';
 import { EmployeeManagementComponent } from './components/Organization-Admin-component/employee-management/employee-management';
 import { SalaryManagementComponent } from './components/Organization-Admin-component/salary-management/salary-management';
@@ -34,6 +33,7 @@ import { LoginComponent } from './login/login';
 // 🔒 Guard
 import { AuthGuard } from './guards/auth.guard';
 import { BankAdminComponent } from './components/Bank-Admin-Component/bank-admin/bank-admin';
+import { OrgAdminDashboardComponent } from './components/Organization-Admin-component/org-admin-dashboard/org-dashboard';
 
 export const routes: Routes = [
   // 🏠 Default
@@ -58,14 +58,14 @@ export const routes: Routes = [
     children: [
       { 
         path: 'dashboard', 
-        component: OrgDashboardComponent,
+        component: OrgAdminDashboardComponent,
         canActivate: [AuthGuard],
-        data: { roles: ['ROLE_ORG_ADMIN'] }
+        data: { roles: ['ROLE_ORGANISATION_ADMIN'] }
       },
-      { path: 'employees', component: EmployeeManagementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
-      { path: 'salary', component: SalaryManagementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
-      { path: 'disbursement', component: DisbursementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
-      { path: 'transactions', component: TransactionsComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORG_ADMIN'] } },
+      { path: 'employees', component: EmployeeManagementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORGANISATION_ADMIN'] } },
+      { path: 'salary', component: SalaryManagementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORGANISATION_ADMIN'] } },
+      { path: 'disbursement', component: DisbursementComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORGANISATION_ADMIN'] } },
+      { path: 'transactions', component: TransactionsComponent, canActivate: [AuthGuard], data: { roles: ['ROLE_ORGANISATION_ADMIN'] } },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
@@ -124,9 +124,9 @@ export const routes: Routes = [
   children: [
     {
       path: 'dashboard',
-      component: OrganizationsComponent,
+      component: OrgDashboardComponent,
       canActivate: [AuthGuard],
-      data: { roles: ['ROLE_ORGANISATION'] } // new role for organization
+      data: { roles: ['ROLE_ORGANISATION'] } 
     },
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
   ]
